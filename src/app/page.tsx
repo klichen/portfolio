@@ -1,3 +1,4 @@
+import ContactMe from '@/components/contact-me';
 import HomeProjects from '@/components/home-projects';
 import Intro from '@/components/intro';
 
@@ -7,6 +8,7 @@ export default function Home() {
       <div className="container max-w-4xl">
         <Intro />
         <HomeProjects />
+        <ContactMe />
       </div>
     </section>
   );

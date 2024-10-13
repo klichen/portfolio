@@ -17,18 +17,22 @@ const projects: Project[] = [
     img: '/images/whentogo.png',
     github: 'https://github.com/klichen/whenToGO',
   },
-  // {
-  //     id: 2,
-  //     title: "Insightle",
-  //     description: "A platform for small business owners to receive unbiased feedback and for helpful customers to provide such feedback.",
-  //     img: "images/insightle.png"
-  // },
-  // {
-  //     id: 3,
-  //     title: "VBCourtMaster",
-  //     description: "A Javascript library that allows developers to represent player positions of one team in a volleyball court, it also allows them to display animations of player rotations along with other volleyball related functionality.",
-  //     img: "images/insightle.png"
-  // },
+  {
+    id: 2,
+    title: 'Insightle',
+    description:
+      'A platform for small business owners to receive unbiased feedback and for helpful customers to provide such feedback.',
+    img: '/images/insightle.png',
+    github: 'https://github.com/klichen/insightle',
+  },
+  {
+    id: 3,
+    title: 'VBCourtMaster',
+    description:
+      'A Javascript library that allows developers to represent player positions of one team in a volleyball court, it also allows them to display animations of player rotations along with other volleyball related functionality.',
+    img: '/images/vb-courtmaster.png',
+    github: 'https://github.com/klichen/vb-courtmaster',
+  },
 ];
 
 export default projects;
