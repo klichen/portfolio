@@ -1,3 +1,3 @@
-## My cool portfolio | https://klichen.info
+## My cool portfolio | https://klichen.dev
 
 Checkout my logo :)
