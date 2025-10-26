@@ -10,7 +10,7 @@ export default function Projects() {
             <h1 className="text-2xl">Projects</h1>
             <p className="mt-3 text-xl font-normal text-muted-foreground">
               I enjoy building projects that provide value to others and myself,
-              keeping my skills sharp and allowing me to continuously learn.
+              allowing me to keep my skills sharp and learn cool things.
             </p>
           </div>
           <div className="flex flex-col items-start gap-8 sm:gap-5">
