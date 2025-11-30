@@ -9,11 +9,13 @@ import { Header } from './header';
 import {
   addVictoryPoint,
   editVictoryPoint,
+  getVpIdFromSource,
   removeVictoryPoint,
 } from '@/actions/duneTrackerAction';
 import type { GameData } from '@/actions/duneTrackerAction';
 import { VpSource } from '@/db/schema';
 import { FullBreakdownDialog } from '@/components/dune-tracker/full-breakdown-dialog';
+import { GameTimer } from '@/components/dune-tracker/game-timer';
 
 export function GameTrackerClient({ initialGame }: { initialGame: GameData }) {
   const [selectedPlayer, setSelectedPlayer] = useState(initialGame.p1Name);
@@ -69,6 +71,14 @@ export function GameTrackerClient({ initialGame }: { initialGame: GameData }) {
             await editVictoryPoint(existing.id, source);
           }
         } else {
+          // check if it's an alliance -> remove any existing alliance before adding
+          if (source.includes('alliance')) {
+            const vpId = await getVpIdFromSource(gameId, source);
+            if (vpId) {
+              await removeVictoryPoint(vpId);
+            }
+          }
+
           await addVictoryPoint(gameId, selectedPlayer, source, currentRound);
         }
       } catch (e) {
@@ -99,7 +109,7 @@ export function GameTrackerClient({ initialGame }: { initialGame: GameData }) {
   const handleNextRound = () => setCurrentRound((r) => Math.min(10, r + 1));
 
   return (
-    <div className="flex max-h-screen flex-col bg-background md:max-h-screen">
+    <div className="flex flex-col overflow-y-auto bg-background md:max-h-screen">
       <Header gameDate={initialGame.timestamp} />
 
       <main className="flex flex-1 flex-col justify-between gap-2 p-4">
@@ -136,7 +146,7 @@ export function GameTrackerClient({ initialGame }: { initialGame: GameData }) {
             onClick={() => setShowBreakdown(true)}
             className={[
               // shape + layout
-              'group relative inline-flex w-full items-center justify-center gap-3 rounded-xl px-5 py-3',
+              'group relative inline-flex w-full items-center justify-center gap-3 rounded-xl px-5 py-2',
               // dune-y space gradient & subtle glow
               'bg-gradient-to-r from-indigo-900 via-purple-900 to-amber-800',
               'shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_8px_24px_-8px_rgba(0,0,0,0.6)]',
@@ -156,6 +166,8 @@ export function GameTrackerClient({ initialGame }: { initialGame: GameData }) {
             </span>
           </button>
         </div>
+
+        <GameTimer />
       </main>
 
       <VPSourceDialog
