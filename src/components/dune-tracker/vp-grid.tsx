@@ -66,7 +66,7 @@ export function VPGrid({
 
   return (
     <div className="flex-1">
-      <div className="grid grid-cols-4 gap-4 md:grid-cols-8">
+      <div className="grid grid-cols-4 gap-3 md:grid-cols-8">
         {/* 1..15 tiles */}
         {squares.map((squareNumber) => {
           const source = sourceBySquareIndex.get(squareNumber);
