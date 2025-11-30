@@ -65,7 +65,7 @@ export function GameTimer() {
 
   return (
     <section className="mt-2 rounded-2xl border border-white/10 bg-card/80 p-2 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_18px_40px_-18px_rgba(0,0,0,0.8)]">
-      <div className="flex flex-row gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex w-full flex-row justify-between gap-4">
         <div className="space-y-2">
           <div>
             <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
