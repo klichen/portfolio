@@ -1,5 +1,5 @@
 'use server';
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/db/drizzle';
 import {
@@ -131,6 +131,22 @@ export const createGame = async (
     });
     throw new Error('Failed to create game');
   }
+};
+
+export const getVpIdFromSource = async (gameId: string, source: VpSource) => {
+  const res = await db
+    .select({ vpId: victoryPointEarned.id })
+    .from(victoryPointEarned)
+    .where(
+      and(
+        eq(victoryPointEarned.gameId, gameId),
+        eq(victoryPointEarned.source, source),
+      ),
+    );
+
+  if (res.length === 0) return null;
+
+  return res[0].vpId;
 };
 
 export const addVictoryPoint = async (

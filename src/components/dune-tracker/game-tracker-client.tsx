@@ -9,6 +9,7 @@ import { Header } from './header';
 import {
   addVictoryPoint,
   editVictoryPoint,
+  getVpIdFromSource,
   removeVictoryPoint,
 } from '@/actions/duneTrackerAction';
 import type { GameData } from '@/actions/duneTrackerAction';
@@ -69,6 +70,14 @@ export function GameTrackerClient({ initialGame }: { initialGame: GameData }) {
             await editVictoryPoint(existing.id, source);
           }
         } else {
+          // check if it's an alliance -> remove any existing alliance before adding
+          if (source.includes('alliance')) {
+            const vpId = await getVpIdFromSource(gameId, source);
+            if (vpId) {
+              await removeVictoryPoint(vpId);
+            }
+          }
+
           await addVictoryPoint(gameId, selectedPlayer, source, currentRound);
         }
       } catch (e) {
