@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { cn, prettyLabel, resolveSourceImgPath } from '@/lib/utils';
 import type { PlayerVpData } from '@/actions/duneTrackerAction';
 import type { VpSource } from '@/db/schema';
+import { useGameType } from '@/components/dune-tracker/game-type-context';
 
 interface VPGridProps {
   playerVPs: PlayerVpData;
@@ -43,6 +44,7 @@ export function VPGrid({
   currentRound,
   onSquareClick,
 }: VPGridProps) {
+  const { gameType } = useGameType();
   const filledSources = useMemo(
     () => playerVPs.vps.filter((vp) => vp.round <= currentRound),
     [playerVPs.vps, currentRound],
@@ -106,7 +108,7 @@ export function VPGrid({
                 <div className="pointer-events-none absolute inset-1 flex items-center justify-center p-2">
                   <div className="relative h-full max-h-[160px] w-full max-w-[160px] drop-shadow-lg">
                     <Image
-                      src={resolveSourceImgPath(source!)}
+                      src={resolveSourceImgPath(gameType, source!)}
                       alt={prettyLabel(source!)}
                       fill
                       className="rounded-full object-contain opacity-95"

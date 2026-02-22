@@ -10,9 +10,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Search, XCircle } from 'lucide-react';
-import { VpSource, vpSourceValues } from '@/db/schema';
+import {
+  baseVpSourceValues,
+  uprisingVpSourceValues,
+  VpSource,
+} from '@/db/schema';
 import { cn, prettyLabel, resolveSourceImgPath } from '@/lib/utils';
 import Image from 'next/image';
+import { useGameType } from '@/components/dune-tracker/game-type-context';
 
 interface VPSourceDialogProps {
   open: boolean;
@@ -34,11 +39,14 @@ export function VPSourceDialog({
   onDelete,
 }: VPSourceDialogProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const { gameType } = useGameType();
 
   // Filter by search, then bubble currentSelection (if any) to the top
   const filteredSources = useMemo(() => {
+    const vpSourcesByGameType =
+      gameType === 'base' ? baseVpSourceValues : uprisingVpSourceValues;
     const q = searchQuery.toLowerCase();
-    const list = vpSourceValues.filter((s) => s.toLowerCase().includes(q));
+    const list = vpSourcesByGameType.filter((s) => s.toLowerCase().includes(q));
     if (currentSelection) {
       const i = list.indexOf(currentSelection.source);
       if (i > 0) {
@@ -47,7 +55,7 @@ export function VPSourceDialog({
       }
     }
     return list;
-  }, [searchQuery, currentSelection]);
+  }, [searchQuery, currentSelection, gameType]);
 
   const handleSelect = (source: VpSource) => {
     if (pending) return;
@@ -109,7 +117,10 @@ export function VPSourceDialog({
                 <div className="flex items-center gap-3">
                   <div className="relative h-10 w-10 overflow-hidden rounded-full border border-white/10 bg-black/30">
                     <Image
-                      src={resolveSourceImgPath(currentSelection.source)}
+                      src={resolveSourceImgPath(
+                        gameType,
+                        currentSelection.source,
+                      )}
                       alt={prettyLabel(currentSelection.source)}
                       width={40}
                       height={40}
@@ -168,7 +179,7 @@ export function VPSourceDialog({
                       <div className="flex items-center gap-3">
                         <span className="relative inline-block h-10 w-10 overflow-hidden rounded-full border border-white/10 bg-black/30">
                           <Image
-                            src={resolveSourceImgPath(source)}
+                            src={resolveSourceImgPath(gameType, source)}
                             alt={prettyLabel(source)}
                             width={40}
                             height={40}

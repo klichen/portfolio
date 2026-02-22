@@ -7,10 +7,29 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { createGame } from '@/actions/duneTrackerAction';
+import { GameType } from '@/db/schema';
+
+const GAME_OPTIONS: Array<{
+  value: GameType;
+  label: string;
+  sublabel: string;
+}> = [
+  {
+    value: 'base' as GameType,
+    label: 'BASE',
+    sublabel: '+ Rise of Ix',
+  },
+  {
+    value: 'uprising' as GameType,
+    label: 'UPRISING',
+    sublabel: '+ Bloodlines',
+  },
+];
 
 export default function StartGamePage() {
   const router = useRouter();
   const placeholders = ['Ben', 'Calvin', 'Ethan', 'Kebin'];
+  const [gameType, setGameType] = useState<GameType>('uprising');
   const [players, setPlayers] = useState({
     p1: '',
     p2: '',
@@ -33,6 +52,7 @@ export default function StartGamePage() {
     const safe = (v: string, fallback: string) => v.trim() || fallback;
 
     const gameId = await createGame(
+      gameType,
       safe(p1, placeholders[0]),
       safe(p2, placeholders[1]),
       safe(p3, placeholders[2]),
@@ -47,6 +67,61 @@ export default function StartGamePage() {
 
       <main className="flex flex-1 flex-col justify-between p-6">
         <div className="flex flex-col gap-6">
+          {/* NEW: Game type selector */}
+          <section className="rounded-2xl border border-primary/20 bg-card/40 p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col">
+                <p className="font-[family-name:var(--font-orbitron)] text-xs tracking-[0.2em] text-muted-foreground">
+                  GAME TYPE
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {GAME_OPTIONS.map((opt) => {
+                const active = opt.value === gameType;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setGameType(opt.value)}
+                    className={[
+                      'group relative rounded-xl border px-3 py-3 text-left transition',
+                      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50',
+                      active
+                        ? 'border-primary/60 bg-primary/10 shadow-sm'
+                        : 'border-primary/20 bg-background/30 hover:border-primary/40 hover:bg-background/50',
+                    ].join(' ')}
+                  >
+                    {/* subtle “glow” line */}
+                    <div
+                      className={[
+                        'absolute inset-x-3 top-0 h-px rounded-full transition-opacity',
+                        active
+                          ? 'bg-primary/70 opacity-100'
+                          : 'bg-primary/40 opacity-0 group-hover:opacity-60',
+                      ].join(' ')}
+                    />
+
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className={[
+                          'font-[family-name:var(--font-orbitron)] text-sm tracking-wider',
+                          active ? 'text-foreground' : 'text-muted-foreground',
+                        ].join(' ')}
+                      >
+                        {opt.label}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {opt.sublabel}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
           <h2 className="text-center font-[family-name:var(--font-orbitron)] text-xl font-semibold tracking-wider text-foreground">
             ENTER PLAYER NAMES
           </h2>

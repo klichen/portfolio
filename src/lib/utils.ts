@@ -1,8 +1,9 @@
-import { VpSource } from '@/db/schema';
+import { GameType, VpSource } from '@/db/schema';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
-const IMAGE_BASE_PATH = '/images/dune-tracker';
+const IMAGE_BASE_PATH = '/images/dune-tracker/base';
+const IMAGE_UPRISING_PATH = '/images/dune-tracker/uprising';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -21,6 +22,7 @@ export function prettyLabel(s: string) {
 }
 
 // Default image resolver (e.g., /public/images/dune-tracker/<source>.jpg)
-export function resolveSourceImgPath(source: VpSource) {
-  return `${IMAGE_BASE_PATH}/${source}.jpg`;
+export function resolveSourceImgPath(gameType: GameType, source: VpSource) {
+  const path = gameType === 'base' ? IMAGE_BASE_PATH : IMAGE_UPRISING_PATH;
+  return `${path}/${source}.jpg`;
 }

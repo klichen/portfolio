@@ -75,11 +75,7 @@ export function Header({ gameDate }: HeaderProps) {
               <time className="text-xs tracking-wider text-white/70 sm:text-base">
                 {formattedDate}
               </time>
-            ) : (
-              <span className="text-xs tracking-wider text-white/70 sm:text-base">
-                Rise of Ix
-              </span>
-            )}
+            ) : null}
           </div>
 
           <button

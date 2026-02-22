@@ -10,6 +10,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import Image from 'next/image';
 import { cn, prettyLabel, resolveSourceImgPath } from '@/lib/utils';
 import type { PlayerVpData } from '@/actions/duneTrackerAction';
+import { useGameType } from '@/components/dune-tracker/game-type-context';
 
 interface FullBreakdownDialogProps {
   open: boolean;
@@ -24,6 +25,7 @@ export function FullBreakdownDialog({
   playerName,
   playerVPs,
 }: FullBreakdownDialogProps) {
+  const { gameType } = useGameType();
   const lastRound =
     playerVPs.vps.length > 0
       ? Math.max(...playerVPs.vps.map((v) => v.round))
@@ -45,7 +47,7 @@ export function FullBreakdownDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          'max-h-[80vh] max-w-full overflow-hidden p-0 md:max-h-[99vh] md:max-w-fit md:p-0',
+          'max-w-full overflow-hidden p-0',
           'border border-amber-300/20 bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-900',
         )}
       >
@@ -60,7 +62,7 @@ export function FullBreakdownDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[70vh]">
+        <ScrollArea className="max-h-[80vh]">
           <div className="space-y-2 px-4 py-4">
             {rounds.map((round) => {
               const items = vpsByRound.get(round) ?? [];
@@ -118,7 +120,7 @@ export function FullBreakdownDialog({
                           >
                             <span className="relative inline-block h-8 w-8 overflow-auto rounded-full border border-white/10 bg-black/30">
                               <Image
-                                src={resolveSourceImgPath(vp.source)}
+                                src={resolveSourceImgPath(gameType, vp.source)}
                                 alt={prettyLabel(vp.source)}
                                 width={36}
                                 height={36}
