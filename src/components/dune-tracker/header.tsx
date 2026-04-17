@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { Share2, Check } from 'lucide-react';
+import { Share2, Check, Clock3 } from 'lucide-react';
 
 interface HeaderProps {
   gameDate?: Date;
@@ -78,22 +78,34 @@ export function Header({ gameDate }: HeaderProps) {
             ) : null}
           </div>
 
-          <button
-            onClick={share}
-            className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/40 p-2 text-white/90 shadow-sm backdrop-blur-sm transition hover:border-amber-300/40 hover:bg-black/55 focus:outline-none focus:ring-2 focus:ring-amber-300/40 focus:ring-offset-2 focus:ring-offset-black"
-            aria-label="Share link"
-          >
-            <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5">
-              {copied ? (
-                <Check className="h-5 w-5 text-amber-300" />
-              ) : (
-                <Share2 className="h-5 w-5 text-amber-200" />
-              )}
-            </span>
-            <span className="hidden text-sm font-semibold tracking-wide sm:inline">
-              {copied ? 'Copied!' : 'Share'}
-            </span>
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dune-tracker/turn-timer"
+              className="group inline-flex items-center justify-center rounded-full border border-white/15 bg-black/40 p-2 text-white/90 shadow-sm backdrop-blur-sm transition hover:border-amber-300/40 hover:bg-black/55 focus:outline-none focus:ring-2 focus:ring-amber-300/40 focus:ring-offset-2 focus:ring-offset-black"
+              aria-label="Open turn timer"
+            >
+              <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5">
+                <Clock3 className="h-5 w-5 text-amber-200" />
+              </span>
+            </Link>
+
+            <button
+              onClick={share}
+              className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/40 p-2 text-white/90 shadow-sm backdrop-blur-sm transition hover:border-amber-300/40 hover:bg-black/55 focus:outline-none focus:ring-2 focus:ring-amber-300/40 focus:ring-offset-2 focus:ring-offset-black"
+              aria-label="Share link"
+            >
+              <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5">
+                {copied ? (
+                  <Check className="h-5 w-5 text-amber-300" />
+                ) : (
+                  <Share2 className="h-5 w-5 text-amber-200" />
+                )}
+              </span>
+              <span className="hidden text-sm font-semibold tracking-wide sm:inline">
+                {copied ? 'Copied!' : 'Share'}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </header>
