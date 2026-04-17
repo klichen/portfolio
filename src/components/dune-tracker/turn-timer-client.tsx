@@ -81,6 +81,9 @@ export function TurnTimerClient({
   const [startingIndex, setStartingIndex] = useState(0);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [currentTurnSeconds, setCurrentTurnSeconds] = useState(0);
+  const [revealedThisRound, setRevealedThisRound] = useState<boolean[]>(() =>
+    Array.from({ length: playerCount }, () => false),
+  );
   const [phase, setPhase] = useState<TimerPhase>('idle');
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [wakeLock, setWakeLock] = useState<WakeLockSentinel | null>(null);
@@ -139,7 +142,10 @@ export function TurnTimerClient({
       void requestWakeLock();
       document.addEventListener('visibilitychange', handleVisibilityChange);
       return () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        document.removeEventListener(
+          'visibilitychange',
+          handleVisibilityChange,
+        );
       };
     }
 
@@ -158,10 +164,22 @@ export function TurnTimerClient({
     [playerCount, startingIndex],
   );
 
+  const getNextEligiblePlayer = (
+    fromIndex: number,
+    revealed: boolean[],
+  ): number | null => {
+    for (let offset = 1; offset <= playerCount; offset += 1) {
+      const candidate = (fromIndex + offset) % playerCount;
+      if (!revealed[candidate]) return candidate;
+    }
+    return null;
+  };
+
   const handleStartOrResume = () => {
     if (phase === 'running') return;
 
     if (phase === 'idle') {
+      setRevealedThisRound(Array.from({ length: playerCount }, () => false));
       setActiveIndex(startingIndex);
       setCurrentTurnSeconds(0);
       setPhase('running');
@@ -177,6 +195,7 @@ export function TurnTimerClient({
       const newStarter = nextStartingIndex;
       setRound((previous) => previous + 1);
       setStartingIndex(newStarter);
+      setRevealedThisRound(Array.from({ length: playerCount }, () => false));
       setActiveIndex(newStarter);
       setCurrentTurnSeconds(0);
       setPhase('running');
@@ -195,9 +214,38 @@ export function TurnTimerClient({
     setConfirmOpen(false);
   };
 
-  const handleEndTurn = () => {
+  const handleEndAgentTurn = () => {
     if (phase !== 'running' || activeIndex === null) return;
-    setActiveIndex((activeIndex + 1) % playerCount);
+
+    const nextPlayer = getNextEligiblePlayer(activeIndex, revealedThisRound);
+    if (nextPlayer === null) {
+      handleEndRound();
+      return;
+    }
+
+    setActiveIndex(nextPlayer);
+    setCurrentTurnSeconds(0);
+  };
+
+  const handleReveal = () => {
+    if (phase !== 'running' || activeIndex === null) return;
+
+    const nextRevealed = [...revealedThisRound];
+    nextRevealed[activeIndex] = true;
+    setRevealedThisRound(nextRevealed);
+
+    if (nextRevealed.every(Boolean)) {
+      handleEndRound();
+      return;
+    }
+
+    const nextPlayer = getNextEligiblePlayer(activeIndex, nextRevealed);
+    if (nextPlayer === null) {
+      handleEndRound();
+      return;
+    }
+
+    setActiveIndex(nextPlayer);
     setCurrentTurnSeconds(0);
   };
 
@@ -226,8 +274,7 @@ export function TurnTimerClient({
           </div>
           {phase === 'ended' ? (
             <p className="mt-2 text-xs text-muted-foreground">
-              Next round starts with{' '}
-              {displayNameAt(nextStartingIndex)}.
+              Next round starts with {displayNameAt(nextStartingIndex)}.
             </p>
           ) : null}
 
@@ -262,6 +309,7 @@ export function TurnTimerClient({
             const meta = COLOR_META[color];
             const theme = CARD_THEME[color];
             const isCurrent = phase === 'running' && activeIndex === slotIndex;
+            const isRevealed = revealedThisRound[slotIndex];
             const isEndRoundState = phase === 'ended';
             const useActiveCardStyle = isCurrent || isEndRoundState;
 
@@ -282,9 +330,16 @@ export function TurnTimerClient({
                       <p className={`font-semibold ${meta.textClass}`}>
                         {displayNameAt(slotIndex)}
                       </p>
-                      <p className={`text-xs ${theme.positionText}`}>
-                        Position {slotIndex + 1}
-                      </p>
+                      <div className="mt-0.5 flex items-center gap-2">
+                        <p className={`text-xs ${theme.positionText}`}>
+                          Position {slotIndex + 1}
+                        </p>
+                        {isRevealed ? (
+                          <span className="rounded-full border border-white/25 bg-black/25 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-white/90">
+                            Revealed
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
 
@@ -308,30 +363,39 @@ export function TurnTimerClient({
                 </div>
 
                 {isCurrent ? (
-                  <div className="mt-3 flex items-end justify-between gap-3">
+                  <div className="mt-3 flex flex-wrap items-end justify-between gap-1">
                     <div className="text-left">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/75">
                         Total Time
                       </p>
                       <p
                         className={[
-                          'font-[family-name:var(--font-orbitron)] text-lg tracking-[0.08em]',
+                          'font-[family-name:var(--font-orbitron)] text-base tracking-[0.08em]',
                           theme.timerText,
                         ].join(' ')}
                       >
                         {formatDuration(durations[slotIndex] ?? 0)}
                       </p>
                     </div>
-                    <Button
-                      onClick={handleEndTurn}
-                      size="sm"
-                      className={[
-                        'font-[family-name:var(--font-orbitron)] text-xs tracking-[0.12em]',
-                        theme.endTurnBtn,
-                      ].join(' ')}
-                    >
-                      End Turn
-                    </Button>
+                    <div className="flex items-center justify-end gap-4">
+                      <Button
+                        onClick={handleEndAgentTurn}
+                        size="sm"
+                        className={[
+                          'font-[family-name:var(--font-orbitron)] text-xs tracking-[0.12em]',
+                          theme.endTurnBtn,
+                        ].join(' ')}
+                      >
+                        End&nbsp;<b>Agent</b>
+                      </Button>
+                      <Button
+                        onClick={handleReveal}
+                        size="sm"
+                        className="border border-white/35 bg-black/35 font-[family-name:var(--font-orbitron)] text-xs tracking-[0.12em] text-white hover:bg-black/50"
+                      >
+                        End&nbsp;<b>Reveal</b>
+                      </Button>
+                    </div>
                   </div>
                 ) : null}
               </div>
